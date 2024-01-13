@@ -6,7 +6,9 @@ const feesInput = document.getElementById('fees');
 const amountPaid = document.getElementById('paid');
 const amountRemaining = document.getElementById('remain');
 const table = document.querySelector('.table');
-const tbody = document.querySelector('#tbody');
+const createBtn = document.querySelector('.create');
+const deleteAllBtn = document.querySelector('.delete');
+const sortSelect = document.querySelector('.sort');
 
 //function that reflects the calculated value
 const reflectValues = (sourceInput, targetInput) => {
@@ -20,15 +22,7 @@ amountPaid.addEventListener('input', () => {
 
 
 //array that holds the input object
-const inputArr = JSON.parse(localStorage.getItem('inputArr')) || [
-    {
-        className: 'primary 1',
-        name: 'omotola',
-        status: 'paid',
-        amountDue: 'none'
-    },
-  
-];
+const inputArr = JSON.parse(localStorage.getItem('inputArr')) || [];
 
 //function that adds the student object to the input array
 const addStudent = ({className, name, status, amountDue})=>{
@@ -37,19 +31,23 @@ const addStudent = ({className, name, status, amountDue})=>{
     return {className, name, status, amountDue};
 }
 
+
+const tbody= document.createElement('tbody');
 //function that creates the table dynamically
-const creatTable = ({className, name, status, amountDue}, index)=>{
-        table.innerHTML += `
-        <tbody>
+const creatTable = ({ className, name, status, amountDue }, index) => {
+    tbody.innerHTML += `
+        <tr id ="${name}">
             <td>${index + 1}</td>
             <td>${className}</td>
-            <td>${name }</td>
+            <td>${name}</td>
             <td>${status}</td>
             <td>${amountDue}</td>
-            <td><button style='background-color: green'>edit</button></td>
-            <td><button>delete</button></td>
-        </tbody> `
-};
+            <td><button type='button' style='background-color: green' onclick='editEntry(this)'>edit</button></td>
+            <td><button type='button' onclick='deleteEntry(this)'>delete</button></td>
+        </tr>
+    `;
+    table.appendChild(tbody);
+}
 inputArr.forEach((student, index)=> creatTable(student, index))
 
 //function that gets user input and add to the array on submit
@@ -61,22 +59,56 @@ form.onsubmit = (e)=>{
     const PaidValue = parseInt(amountPaid.value);
     const remainderValue = parseInt(amountRemaining.value);
 
-    //calling the addStudent function to add  add input to the array
- const newStudent = addStudent({
-        className: selectValue,
-        name: nameValue,
-        status: `${remainderValue === 0 ? 'paid' : 'owing'}`,
-        amountDue: `${remainderValue === 0 ? 'cleared' : remainderValue}`
-    });
+    if(selectValue == ' ' || nameValue == '' || PaidValue == ''){
+        return;
+    } else {
+        const newStudent = addStudent({
+            className: selectValue,
+            name: nameValue,
+            status: `${remainderValue === 0 ? 'paid' : 'owing'}`,
+            amountDue: `${remainderValue === 0 ? 'cleared' : remainderValue}`
+        });
+        creatTable(newStudent, currentIndex)
+    
+        currentIndex ++;
+    }
 
-    //calling the function that creates the table for the student profile
-    creatTable(newStudent, currentIndex)
+    select.value = '';
+    nameInput.value = '';
+    amountRemaining.value = '';
+    amountPaid.value = '';
+}
 
-    currentIndex ++;
-    nameValue = '';
-    PaidValue = '';
-    remainderValue = '';
-    console.log(inputArr)
+//function that deletes an entry 
+const deleteEntry = (buttonEl) => {
+    const userId = buttonEl.parentElement.parentElement.getAttribute('id');
+    const userIndex = inputArr.findIndex((user) => user.name === userId);
+    buttonEl.parentElement.parentElement.remove();
+    inputArr.splice(userIndex, 1); 
+    localStorage.setItem('inputArr', JSON.stringify(inputArr));
+};
 
+const editEntry = (buttonEl) => {
+    const userId = buttonEl.parentElement.parentElement.getAttribute('id')
+    const userIndex = inputArr.findIndex((user) => user.name === userId);
+    console.log(inputArr[userIndex].amountDue)
+            nameInput.value = inputArr[userIndex].name;
+            select.value = inputArr[userIndex].className;
+            amountRemaining.value = inputArr[userIndex].amountDue
+            amountPaid.value = parseInt(inputArr[userIndex].amountDue) + parseInt(feesInput.value);
+            createBtn.addEventListener('click', ()=>{
+            inputArr.splice(userIndex, 1)
+            buttonEl.parentElement.parentElement.remove();
+        });
+
+}
+
+deleteAllBtn.addEventListener('click', ()=>{
+    confirm('are you sure you want to clear all entry? ');
+    localStorage.clear();
+    tbody.remove();
+})
+
+if(sortSelect.value === 'Payment Status'){
     
 }
