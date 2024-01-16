@@ -1,3 +1,4 @@
+
 //selecting the inputs and form
 const form = document.getElementById('form');
 const select = document.getElementById('select');
@@ -10,16 +11,15 @@ const createBtn = document.querySelector('.create');
 const deleteAllBtn = document.querySelector('.delete');
 const sortSelect = document.querySelector('.sort');
 
-//function that reflects the calculated value
 const reflectValues = (sourceInput, targetInput) => {
     const sourceValue = parseInt(sourceInput.value) || 0; 
-    targetInput.value = parseInt(sourceValue ) - parseInt(feesInput.value) ;
+    targetInput.value = Math.abs(parseInt(sourceValue ) - parseInt(feesInput.value));
 };
 
+//function that reflects the calculated value
 amountPaid.addEventListener('input', () => {
     reflectValues(amountPaid, amountRemaining);
 });
-
 
 //array that holds the input object
 const inputArr = JSON.parse(localStorage.getItem('inputArr')) || [];
@@ -105,10 +105,14 @@ const editEntry = (buttonEl) => {
 
 deleteAllBtn.addEventListener('click', ()=>{
     confirm('are you sure you want to clear all entry? ');
-    localStorage.clear();
-    tbody.remove();
+    if (confirm === true){
+        localStorage.clear();
+        tbody.remove();
+    }else {
+        return;
+    }
 })
 
-if(sortSelect.value === 'Payment Status'){
-    
-}
+//how to sort an array and render the  display;
+
+//working with modals
